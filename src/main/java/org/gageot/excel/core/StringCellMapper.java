@@ -16,10 +16,10 @@
 
 package org.gageot.excel.core;
 
+import org.apache.poi.ss.usermodel.Cell;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * CellMapper implementation that creates a <code>java.lang.String</code>
@@ -35,37 +35,37 @@ public class StringCellMapper implements CellMapper<String> {
 	private SimpleDateFormat dateFormat;
 
 	@Override
-	public String mapCell(HSSFCell cell, int rowNum, int columnNum) throws IOException {
+	public String mapCell(Cell cell, int rowNum, int columnNum) throws IOException {
 		if (null == cell) {
 			return ""; // TODO
 		}
 
-		switch (cell.getCellType()) {
-			case Cell.CELL_TYPE_BLANK:
+		switch (cell.getCellTypeEnum()) {
+			case BLANK:
 				return "";
-			case Cell.CELL_TYPE_ERROR:
+			case ERROR:
 				return "Error<" + cell.getErrorCellValue() + ">";
-			case Cell.CELL_TYPE_BOOLEAN:
+			case BOOLEAN:
 				return booleanToString(cell);
-			case Cell.CELL_TYPE_NUMERIC:
+			case NUMERIC:
 				return numericToString(cell);
-			case Cell.CELL_TYPE_FORMULA:
+			case FORMULA:
 				return formulaToString(cell);
-			case Cell.CELL_TYPE_STRING:
+			case STRING:
 			default:
 				return richTextToString(cell);
 		}
 	}
 
-	private String booleanToString(HSSFCell cell) {
+	private String booleanToString(Cell cell) {
 		return cell.getBooleanCellValue() ? "VRAI" : "FAUX";
 	}
 
-	private String richTextToString(HSSFCell cell) {
+	private String richTextToString(Cell cell) {
 		return cell.getStringCellValue();
 	}
 
-	private String numericToString(HSSFCell cell) {
+	private String numericToString(Cell cell) {
 		double numericValue = cell.getNumericCellValue();
 
 		if (Double.isNaN(numericValue)) {
@@ -91,7 +91,7 @@ public class StringCellMapper implements CellMapper<String> {
 		return Double.toString(numericValue);
 	}
 
-	private String formulaToString(HSSFCell cell) {
+	private String formulaToString(Cell cell) {
 		if (isTextFormat(cell)) {
 			return richTextToString(cell);
 		}
@@ -99,13 +99,13 @@ public class StringCellMapper implements CellMapper<String> {
 		return numericToString(cell);
 	}
 
-	private static boolean isTextFormat(HSSFCell cell) {
+	private static boolean isTextFormat(Cell cell) {
 		short cellFormat = cell.getCellStyle().getDataFormat();
 
 		return ((TEXT_CELL_FORMAT == cellFormat) || (OPENOFFICE_TEXT_CELL_FORMAT == cellFormat));
 	}
 
-	private static boolean isDateFormat(HSSFCell cell) {
+	private static boolean isDateFormat(Cell cell) {
 		short cellFormat = cell.getCellStyle().getDataFormat();
 
 		return (OPENOFFICE_DATE_CELL_FORMAT == cellFormat);

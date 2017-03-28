@@ -16,10 +16,11 @@
 
 package org.gageot.excel.core;
 
+import com.google.common.collect.Lists;
+import org.apache.poi.ss.usermodel.Sheet;
+
 import java.io.IOException;
 import java.util.List;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import com.google.common.collect.Lists;
 
 /**
  * Adapter implementation of the SheetExtractor interface that delegates
@@ -47,7 +48,7 @@ public class RowMapperSheetExtractor<T> implements SheetExtractor<List<T>> {
 	}
 
 	@Override
-	public List<T> extractData(HSSFSheet sheet) throws IOException {
+	public List<T> extractData(Sheet sheet) throws IOException {
 		List<T> rows = Lists.newArrayList();
 
 		int firstRowIndex = sheet.getFirstRowNum();

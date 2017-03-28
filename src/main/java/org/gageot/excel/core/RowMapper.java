@@ -16,8 +16,9 @@
 
 package org.gageot.excel.core;
 
+import org.apache.poi.ss.usermodel.Row;
+
 import java.io.IOException;
-import org.apache.poi.hssf.usermodel.HSSFRow;
 
 /** 
  * An interface used by ExcelTemplate for mapping rows.
@@ -38,5 +39,5 @@ public interface RowMapper<T> {
 	 * @throws IOException if a IOException is encountered getting
 	 * column values (that is, there's no need to catch IOException)
 	 */
-	T mapRow(HSSFRow row, int rowNum) throws IOException;
+	T mapRow(Row row, int rowNum) throws IOException;
 }
