@@ -17,7 +17,9 @@
 package org.gageot.excel.core;
 
 import java.io.IOException;
-import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.DateUtil;
 
 /**
  * CellMapper implementation that creates a <code>java.lang.Object</code>
@@ -28,9 +30,20 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
  */
 public class ObjectCellMapper implements CellMapper<Object> {
 	@Override
-	public Object mapCell(HSSFCell cell, int rowNum, int columnNum) throws IOException {
+	public Object mapCell(Cell cell, int rowNum, int columnNum) throws IOException {
 		try {
-			return cell.getNumericCellValue();
+			if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+				return null;
+			}
+
+			if (DateUtil.isCellDateFormatted(cell)) {
+				return cell.getDateCellValue();
+			}
+
+			// Only need one of these
+			DataFormatter fmt = new DataFormatter();
+
+			return fmt.formatCellValue(cell);
 		} catch (NumberFormatException e) {
 			return cell.getStringCellValue();
 		} catch (IllegalStateException e) {
