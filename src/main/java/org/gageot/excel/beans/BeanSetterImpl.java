@@ -68,7 +68,7 @@ public class BeanSetterImpl implements BeanSetter {
 		//
 		for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
 			if (propertyDescriptor.getName().equalsIgnoreCase(propertyName)) {
-				wrapper.setPropertyValue(propertyDescriptor.getName(), propertyValue.toString());
+				wrapper.setPropertyValue(propertyDescriptor.getName(), propertyValue == null ? null : propertyValue.toString());
 				break;
 			}
 		}
