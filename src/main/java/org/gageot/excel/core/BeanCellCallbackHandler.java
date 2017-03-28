@@ -16,16 +16,18 @@
 
 package org.gageot.excel.core;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import org.apache.poi.hssf.usermodel.HSSFCell;
+import com.google.common.base.CaseFormat;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.poi.ss.usermodel.Cell;
 import org.gageot.excel.beans.BeanSetter;
 import org.gageot.excel.beans.BeanSetterImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * CallbackHandler implementation that creates a bean of the given class
@@ -57,10 +59,11 @@ public class BeanCellCallbackHandler<T> implements CellCallbackHandler {
 	}
 
 	@Override
-	public void processCell(HSSFCell cell, int rowNum, int columnNum) throws IOException, BeansException {
+	public void processCell(Cell cell, int rowNum, int columnNum) throws IOException, BeansException {
 		if (0 == rowNum) {
-			String propertyName = headerMapper.mapCell(cell, rowNum, columnNum);
-			propertyNames.put(columnNum, propertyName);
+			String propertyName = headerMapper.mapCell(cell, rowNum, columnNum).replaceAll(" ", "_").toLowerCase();
+			String camelCasePropertyName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, propertyName);
+			propertyNames.put(columnNum, camelCasePropertyName);
 			return;
 		}
 

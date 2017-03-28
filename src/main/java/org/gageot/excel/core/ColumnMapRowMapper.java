@@ -46,13 +46,13 @@ public class ColumnMapRowMapper<T> implements RowMapper<Map<String, T>> {
 	}
 
 	@Override
-	public Map<String, T> mapRow(HSSFRow row, int rowNum) throws IOException {
+	public Map<String, T> mapRow(Row row, int rowNum) throws IOException {
 		Map<String, T> map = createColumnMap(row.getLastCellNum());
 
 		short lastColumnNum = row.getLastCellNum();
 		for (short columnNum = 0; columnNum < lastColumnNum; columnNum++) {
 			if (columnNum < keys.length) { // TODO : write test
-				map.put(keys[columnNum], cellMapper.mapCell(row.getCell(columnNum, Row.RETURN_BLANK_AS_NULL), rowNum, columnNum));
+				map.put(keys[columnNum], cellMapper.mapCell(row.getCell(columnNum, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL), rowNum, columnNum));
 			}
 		}
 

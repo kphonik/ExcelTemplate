@@ -1,10 +1,12 @@
 package org.gageot.excel.core;
 
-import static org.fest.assertions.Assertions.*;
-import java.awt.Point;
-import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.ss.usermodel.Cell;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.awt.*;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CellMapperTest {
 	private static final String FILE_NAME = "simple.xls";
@@ -21,7 +23,7 @@ public class CellMapperTest {
 	public void readObjectMatrix() {
 		Point[][] lines = reader.read(TAB_NAME, new CellMapper<Point>() {
 			@Override
-			public Point mapCell(HSSFCell cell, int rowNum, int columnNum) {
+			public Point mapCell(Cell cell, int rowNum, int columnNum) {
 				return new Point(rowNum, columnNum);
 			}
 		}, Point.class);

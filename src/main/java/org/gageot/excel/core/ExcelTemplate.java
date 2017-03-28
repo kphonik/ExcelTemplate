@@ -16,7 +16,23 @@
 
 package org.gageot.excel.core;
 
-import static com.google.common.base.Preconditions.*;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.ObjectArrays;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.dao.CleanupFailureDataAccessException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -25,20 +41,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.dao.CleanupFailureDataAccessException;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataAccessResourceFailureException;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.ObjectArrays;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * <b>This is the central class in the Excel core package.</b>
@@ -115,9 +120,9 @@ public class ExcelTemplate implements InitializingBean {
 	 * @throws DataAccessException if there is any problem
 	 */
 	public String[] getSheetNames() {
-		return read(new Function<HSSFWorkbook, String[]>() {
+		return read(new Function<Workbook, String[]>() {
 			@Override
-			public String[] apply(HSSFWorkbook workbook) {
+			public String[] apply(Workbook workbook) {
 				int sheetCount = workbook.getNumberOfSheets();
 
 				String[] sheetNames = new String[sheetCount];
@@ -142,10 +147,10 @@ public class ExcelTemplate implements InitializingBean {
 		checkNotNull(sheetExtractor, "SheetExtractor must not be null");
 		checkNotNull(sheetName, "sheetName must not be null");
 
-		return read(new Function<HSSFWorkbook, T>() {
+		return read(new Function<Workbook, T>() {
 			@Override
-			public T apply(HSSFWorkbook workbook) {
-				HSSFSheet sheet = workbook.getSheet(sheetName);
+			public T apply(Workbook workbook) {
+				Sheet sheet = workbook.getSheet(sheetName);
 				try {
 					return sheetExtractor.extractData(sheet);
 				} catch (IOException e) {
@@ -155,15 +160,15 @@ public class ExcelTemplate implements InitializingBean {
 		});
 	}
 
-	private <T> T read(Function<HSSFWorkbook, T> transform) {
+	private <T> T read(Function<Workbook, T> transform) {
 		checkNotNull(getResource(), "resource must not be null");
 
 		InputStream in = null;
 		try {
 			in = new BufferedInputStream(getResource().getInputStream());
 
-			return transform.apply(new HSSFWorkbook(in, false));
-		} catch (IOException e) {
+			return transform.apply(WorkbookFactory.create(in));
+		} catch (IOException | EncryptedDocumentException | InvalidFormatException e) {
 			throw new DataAccessResourceFailureException("Problem reading file", e);
 		} finally {
 			if (null != in) {
@@ -251,7 +256,7 @@ public class ExcelTemplate implements InitializingBean {
 		}
 
 		@Override
-		public T[] mapRow(HSSFRow row, int rowNum) throws IOException {
+		public T[] mapRow(Row row, int rowNum) throws IOException {
 			short lastColumnNum = row.getLastCellNum();
 
 			if (lastColumnNum <= 0) {
@@ -282,7 +287,7 @@ public class ExcelTemplate implements InitializingBean {
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public T[][] extractData(HSSFSheet sheet) throws IOException {
+		public T[][] extractData(Sheet sheet) throws IOException {
 			List<T[]> rowValues = Lists.newArrayList();
 
 			ObjectArrayRowMapper<T> rowMapper = new ObjectArrayRowMapper<T>(cellMapper, cellClass);
@@ -292,7 +297,7 @@ public class ExcelTemplate implements InitializingBean {
 			int lastRowIndex = sheet.getLastRowNum();
 
 			for (int i = firstRowIndex; i <= lastRowIndex; i++) {
-				HSSFRow row = sheet.getRow(i);
+				Row row = sheet.getRow(i);
 
 				if (null != row) {
 					T[] currentRowValues = rowMapper.mapRow(row, i);
@@ -322,7 +327,7 @@ public class ExcelTemplate implements InitializingBean {
 		}
 
 		@Override
-		public void processRow(HSSFRow row, int rowIndex) throws IOException {
+		public void processRow(Row row, int rowIndex) throws IOException {
 			if (null == rowMapper) { // First line, read keys
 				RowMapper<String[]> firstRowMapper = new ObjectArrayRowMapper<String>(new StringCellMapper(), String.class);
 
@@ -350,7 +355,7 @@ public class ExcelTemplate implements InitializingBean {
 		}
 
 		@Override
-		public Void extractData(HSSFSheet sheet) throws IOException {
+		public Void extractData(Sheet sheet) throws IOException {
 			int firstRowIndex = sheet.getFirstRowNum();
 			int lastRowIndex = sheet.getLastRowNum();
 
@@ -373,18 +378,18 @@ public class ExcelTemplate implements InitializingBean {
 		}
 
 		@Override
-		public Void extractData(HSSFSheet sheet) throws IOException {
+		public Void extractData(Sheet sheet) throws IOException {
 			int firstRowIndex = sheet.getFirstRowNum();
 			int lastRowIndex = sheet.getLastRowNum();
 
 			for (int i = firstRowIndex; i <= lastRowIndex; i++) {
-				HSSFRow row = sheet.getRow(i);
+				Row row = sheet.getRow(i);
 				if (null != row) {
 					short firstColIndex = row.getFirstCellNum();
 					short lastColIndex = row.getLastCellNum();
 
 					for (short j = firstColIndex; j < lastColIndex; j++) {
-						cellCallbackHandler.processCell(row.getCell(j, Row.RETURN_BLANK_AS_NULL), i, j);
+						cellCallbackHandler.processCell(row.getCell(j, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL), i, j);
 					}
 				}
 			}

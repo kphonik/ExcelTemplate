@@ -16,8 +16,9 @@
 
 package org.gageot.excel.core;
 
+import org.apache.poi.ss.usermodel.Cell;
+
 import java.io.IOException;
-import org.apache.poi.hssf.usermodel.HSSFCell;
 
 /**
  * Callback interface used by ExcelTemplate's query methods.
@@ -47,5 +48,5 @@ public interface CellCallbackHandler {
 	 * @throws IOException if a IOException is encountered getting
 	 * column values (that is, there's no need to catch IOException)
 	 */
-	void processCell(HSSFCell cell, int rowNum, int columnNum) throws IOException;
+	void processCell(Cell cell, int rowNum, int columnNum) throws IOException;
 }
