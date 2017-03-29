@@ -213,12 +213,13 @@ public class ExcelTemplate implements InitializingBean {
 		read(sheetName, new CellCallbackHandlerSheetExtractor(cellCallbackHandler));
 	}
 
-	public <T> List<T> readBeans(String sheetName, Class<T> clazz) throws DataAccessException {
-		BeanCellCallbackHandler<T> handler = new BeanCellCallbackHandler<T>(clazz);
-
+	public <T> List<T> readBeans(String sheetName, BeanCellCallbackHandler<T> handler) throws DataAccessException {
 		read(sheetName, handler);
-
 		return handler.getBeans();
+	}
+
+	public <T> List<T> readBeans(String sheetName, Class<T> clazz) throws DataAccessException {
+		return readBeans(sheetName, new BeanCellCallbackHandler<T>(clazz));
 	}
 
 	/**
