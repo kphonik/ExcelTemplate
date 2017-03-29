@@ -1,9 +1,10 @@
 package org.gageot.excel.core;
 
-import static org.fest.assertions.Assertions.*;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class SheetExtractorTest {
 	private static final String FILE_NAME = "simple.xls";
@@ -20,7 +21,7 @@ public class SheetExtractorTest {
 	public void readWithSheetExtractor() {
 		int[] rows = reader.read(TAB_NAME, new SheetExtractor<int[]>() {
 			@Override
-			public int[] extractData(HSSFSheet sheet) {
+			public int[] extractData(Sheet sheet) {
 				return new int[] {
 						sheet.getFirstRowNum(), sheet.getLastRowNum()
 				};

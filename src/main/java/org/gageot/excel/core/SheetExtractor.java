@@ -16,9 +16,10 @@
 
 package org.gageot.excel.core;
 
-import java.io.IOException;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.dao.DataAccessException;
+
+import java.io.IOException;
 
 /** 
  * Callback interface used by ExcelTemplate's query methods.
@@ -48,5 +49,5 @@ public interface SheetExtractor<T> {
 	 * values or navigating (that is, there's no need to catch IOException)
 	 * @throws DataAccessException in case of custom exceptions
 	 */
-	T extractData(HSSFSheet sheet) throws IOException, DataAccessException;
+	T extractData(Sheet sheet) throws IOException, DataAccessException;
 }

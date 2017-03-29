@@ -16,8 +16,9 @@
 
 package org.gageot.excel.core;
 
+import org.apache.poi.ss.usermodel.Row;
+
 import java.io.IOException;
-import org.apache.poi.hssf.usermodel.HSSFRow;
 
 /**
  * Callback interface used by ExcelTemplate's query methods.
@@ -45,5 +46,5 @@ public interface RowCallbackHandler {
 	 * @throws IOException if a IOException is encountered getting
 	 * column values (that is, there's no need to catch IOException)
 	 */
-	void processRow(HSSFRow row, int rowNum) throws IOException;
+	void processRow(Row row, int rowNum) throws IOException;
 }

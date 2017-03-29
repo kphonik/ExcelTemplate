@@ -16,8 +16,9 @@
 
 package org.gageot.excel.core;
 
+import org.apache.poi.ss.usermodel.Cell;
+
 import java.io.IOException;
-import org.apache.poi.hssf.usermodel.HSSFCell;
 
 /** 
  * An interface used by ExcelTemplate for mapping cells.
@@ -40,5 +41,5 @@ public interface CellMapper<T> {
 	 * @throws IOException if a IOException is encountered getting
 	 * column values (that is, there's no need to catch IOException)
 	 */
-	T mapCell(HSSFCell cell, int rowNum, int columnNum) throws IOException;
+	T mapCell(Cell cell, int rowNum, int columnNum) throws IOException;
 }
